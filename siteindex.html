@@ -1,0 +1,3424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ciclo do Sono</title>
+
+<style>
+
+/* =========================================================
+   CONFIGURAÇÕES GERAIS
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#070b1f;
+    color:white;
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+/* =========================================================
+   FUNDO
+========================================================= */
+
+body::before{
+    content:"";
+    position:fixed;
+    width:700px;
+    height:700px;
+    background:radial-gradient(
+        circle,
+        rgba(119,103,255,.20),
+        transparent 70%
+    );
+    top:-300px;
+    left:-200px;
+    z-index:-3;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    width:700px;
+    height:700px;
+    background:radial-gradient(
+        circle,
+        rgba(92,119,255,.12),
+        transparent 70%
+    );
+    bottom:-350px;
+    right:-200px;
+    z-index:-3;
+}
+
+/* =========================================================
+   ESTRELAS
+========================================================= */
+
+.stars{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    pointer-events:none;
+}
+
+.star{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:white;
+    border-radius:50%;
+    animation:piscar 3s infinite ease-in-out;
+}
+
+@keyframes piscar{
+
+    0%,100%{
+        opacity:.15;
+        transform:scale(.8);
+    }
+
+    50%{
+        opacity:1;
+        transform:scale(1.5);
+    }
+
+}
+
+/* =========================================================
+   LUA DE FUNDO
+========================================================= */
+
+.moon-bg{
+    position:fixed;
+    right:-170px;
+    top:100px;
+    width:450px;
+    height:450px;
+    border-radius:50%;
+    background:#fff9d8;
+    box-shadow:
+        0 0 30px rgba(255,250,210,.5),
+        0 0 100px rgba(255,250,210,.18);
+    opacity:.05;
+    z-index:-1;
+}
+
+/* =========================================================
+   MENU
+========================================================= */
+
+header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:1000;
+
+    background:rgba(5,8,27,.88);
+    backdrop-filter:blur(18px);
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+nav{
+    width:92%;
+    max-width:1250px;
+    min-height:75px;
+    margin:auto;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.logo span{
+    color:#a797ff;
+}
+
+.menu{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+
+.menu::-webkit-scrollbar{
+    display:none;
+}
+
+.menu button{
+    border:none;
+    background:transparent;
+    color:#aaaec7;
+
+    padding:11px 13px;
+    border-radius:20px;
+
+    cursor:pointer;
+    font-size:12px;
+
+    transition:.3s;
+    white-space:nowrap;
+}
+
+.menu button:hover,
+.menu button.active{
+    background:#7568d9;
+    color:white;
+}
+
+/* =========================================================
+   PÁGINAS
+========================================================= */
+
+.page{
+    display:none;
+
+    min-height:100vh;
+
+    padding:130px 7% 80px;
+
+    animation:entrada .6s ease;
+}
+
+.page.active{
+    display:block;
+}
+
+@keyframes entrada{
+
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+.container{
+    width:100%;
+    max-width:1200px;
+    margin:auto;
+}
+
+.label{
+    color:#a99cff;
+    font-size:12px;
+    letter-spacing:4px;
+    font-weight:bold;
+    margin-bottom:18px;
+}
+
+h1{
+    font-size:clamp(50px,7vw,90px);
+    line-height:.95;
+}
+
+h1 span{
+    color:#9b8cff;
+}
+
+h2{
+    font-size:48px;
+    line-height:1.1;
+    margin-bottom:20px;
+}
+
+h3{
+    font-size:21px;
+    margin-bottom:10px;
+}
+
+.text{
+    color:#afb2c8;
+    font-size:17px;
+    line-height:1.8;
+    max-width:750px;
+}
+
+.btn{
+    display:inline-block;
+
+    padding:15px 25px;
+
+    border-radius:30px;
+
+    border:1px solid #8174ed;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6e60d8,
+            #9b8cff
+        );
+
+    color:white;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:translateY(-5px);
+
+    box-shadow:
+        0 15px 40px
+        rgba(119,103,255,.3);
+}
+
+/* =========================================================
+   BOTÕES DE NAVEGAÇÃO
+========================================================= */
+
+.page-navigation{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-top:60px;
+    padding-top:25px;
+    border-top:1px solid rgba(255,255,255,.07);
+}
+
+.nav-page-btn{
+    border:1px solid rgba(141,128,237,.5);
+    background:#10132e;
+    color:white;
+    padding:13px 22px;
+    border-radius:25px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.nav-page-btn:hover{
+    background:#7568d9;
+    transform:translateY(-3px);
+}
+
+.nav-page-btn:disabled{
+    opacity:.3;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.page-number{
+    color:#8f92ac;
+    font-size:13px;
+}
+
+/* =========================================================
+   INÍCIO
+========================================================= */
+
+.home{
+    min-height:calc(100vh - 50px);
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    align-items:center;
+
+    gap:50px;
+}
+
+.home-text{
+    max-width:650px;
+}
+
+.home-text .text{
+    margin-top:25px;
+    margin-bottom:35px;
+}
+
+.sleep-scene{
+    height:470px;
+
+    position:relative;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.big-moon{
+    width:250px;
+    height:250px;
+
+    border-radius:50%;
+
+    background:#fff8cf;
+
+    box-shadow:
+        0 0 30px #fff7bd,
+        0 0 80px rgba(255,247,189,.35);
+
+    position:relative;
+
+    animation:flutuar 5s infinite ease-in-out;
+}
+
+@keyframes flutuar{
+
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-18px);
+    }
+
+}
+
+.crater{
+    position:absolute;
+    border-radius:50%;
+    background:#e8e3bb;
+    opacity:.45;
+}
+
+.c1{
+    width:45px;
+    height:45px;
+    top:55px;
+    left:55px;
+}
+
+.c2{
+    width:30px;
+    height:30px;
+    top:130px;
+    right:55px;
+}
+
+.c3{
+    width:20px;
+    height:20px;
+    bottom:45px;
+    left:105px;
+}
+
+.cloud{
+    position:absolute;
+
+    width:130px;
+    height:35px;
+
+    background:#dfe4ff;
+
+    border-radius:40px;
+
+    opacity:.5;
+
+    animation:nuvem 10s linear infinite;
+}
+
+.cloud::before,
+.cloud::after{
+    content:"";
+    position:absolute;
+
+    background:#dfe4ff;
+
+    border-radius:50%;
+}
+
+.cloud::before{
+    width:60px;
+    height:60px;
+    left:20px;
+    top:-30px;
+}
+
+.cloud::after{
+    width:75px;
+    height:75px;
+    right:10px;
+    top:-40px;
+}
+
+.cloud1{
+    left:0;
+    bottom:100px;
+}
+
+.cloud2{
+    right:0;
+    top:100px;
+    transform:scale(.7);
+}
+
+@keyframes nuvem{
+
+    0%,100%{
+        transform:translateX(0);
+    }
+
+    50%{
+        transform:translateX(25px);
+    }
+
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.cards{
+    margin-top:50px;
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+
+    gap:22px;
+}
+
+.card{
+    padding:30px;
+
+    border-radius:25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.08),
+            rgba(255,255,255,.025)
+        );
+
+    border:1px solid rgba(255,255,255,.08);
+
+    transition:.4s;
+
+    position:relative;
+    overflow:hidden;
+}
+
+.card::before{
+    content:"";
+
+    position:absolute;
+
+    width:100px;
+    height:100px;
+
+    background:#8b7dff;
+
+    filter:blur(70px);
+
+    opacity:.15;
+
+    top:-40px;
+    right:-30px;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+
+    border-color:#7164db;
+}
+
+.icon{
+    font-size:42px;
+    margin-bottom:20px;
+}
+
+.card p{
+    color:#aeb1c7;
+    line-height:1.7;
+}
+
+/* =========================================================
+   IMPORTÂNCIA
+========================================================= */
+
+.importance-grid{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:60px;
+
+    align-items:center;
+}
+
+.brain{
+    min-height:450px;
+
+    border-radius:35px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(142,125,255,.25),
+            transparent 55%
+        ),
+        #10132e;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:150px;
+
+    animation:pulsar 4s infinite ease-in-out;
+}
+
+@keyframes pulsar{
+
+    0%,100%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.035);
+    }
+
+}
+
+.benefits{
+    margin-top:30px;
+
+    display:grid;
+
+    gap:15px;
+}
+
+.benefit{
+    padding:18px;
+
+    border-radius:18px;
+
+    background:#10132d;
+
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.benefit strong{
+    display:block;
+    margin-bottom:5px;
+}
+
+.benefit span{
+    color:#aeb1c5;
+    font-size:14px;
+}
+
+/* =========================================================
+   DICAS
+========================================================= */
+
+.tip-grid{
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+    margin-top:45px;
+}
+
+.tip{
+    padding:25px;
+
+    border-radius:22px;
+
+    background:#10132e;
+
+    border:1px solid rgba(255,255,255,.07);
+
+    transition:.3s;
+}
+
+.tip:hover{
+    background:#171a3c;
+
+    transform:translateX(8px);
+}
+
+.tip-number{
+    width:42px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#7769e5;
+
+    margin-bottom:18px;
+
+    font-weight:bold;
+}
+
+.tip p{
+    color:#aeb1c5;
+    line-height:1.7;
+}
+
+/* =========================================================
+   ROTINA
+========================================================= */
+
+.timeline{
+    margin-top:50px;
+
+    position:relative;
+}
+
+.timeline::before{
+    content:"";
+
+    position:absolute;
+
+    left:30px;
+    top:0;
+    bottom:0;
+
+    width:2px;
+
+    background:#5148a5;
+}
+
+.timeline-item{
+    display:flex;
+
+    gap:30px;
+
+    margin-bottom:35px;
+
+    position:relative;
+}
+
+.timeline-dot{
+    width:62px;
+    height:62px;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    background:#7568dd;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:24px;
+
+    z-index:2;
+
+    box-shadow:
+        0 0 0 8px #070b1f;
+}
+
+.timeline-content{
+    background:#10132e;
+
+    padding:22px 25px;
+
+    border-radius:20px;
+
+    flex:1;
+}
+
+.timeline-content .time{
+    color:#a79bff;
+
+    font-weight:bold;
+
+    margin-bottom:7px;
+}
+
+.timeline-content p{
+    color:#aeb1c5;
+    line-height:1.6;
+}
+
+/* =========================================================
+   CURIOSIDADES
+========================================================= */
+
+.questions{
+    margin-top:45px;
+
+    display:grid;
+
+    gap:15px;
+}
+
+.question{
+    background:#10132e;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    cursor:pointer;
+
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.question-top{
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    font-weight:bold;
+}
+
+.answer{
+    max-height:0;
+
+    overflow:hidden;
+
+    color:#aaadc1;
+
+    line-height:1.7;
+
+    transition:.4s;
+}
+
+.question.open .answer{
+    max-height:250px;
+
+    padding-top:15px;
+}
+
+/* =========================================================
+   IMPORTANTE
+========================================================= */
+
+.warning{
+    max-width:900px;
+
+    margin:auto;
+
+    padding:55px;
+
+    border-radius:35px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(118,104,255,.15),
+            rgba(16,19,46,.8)
+        );
+
+    border:1px solid rgba(148,136,255,.3);
+
+    text-align:center;
+}
+
+.warning-icon{
+    font-size:70px;
+    margin-bottom:20px;
+}
+
+.warning p{
+    color:#afb1c6;
+
+    line-height:1.8;
+
+    margin:20px auto;
+
+    max-width:750px;
+}
+
+/* =========================================================
+   MINHA ROTINA
+========================================================= */
+
+.sleep-routine{
+    margin-top:45px;
+
+    display:grid;
+
+    gap:28px;
+}
+
+.question-box{
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.08),
+            rgba(255,255,255,.025)
+        );
+
+    border:1px solid rgba(255,255,255,.09);
+
+    border-radius:28px;
+
+    padding:32px;
+}
+
+.question-box h3{
+    font-size:24px;
+
+    margin-bottom:10px;
+}
+
+.question-box p{
+    color:#aeb1c5;
+
+    line-height:1.7;
+
+    margin-bottom:20px;
+}
+
+/* =========================================================
+   DESPERTADOR
+========================================================= */
+
+.alarm-area{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:25px;
+
+    margin-top:30px;
+}
+
+.alarm-card{
+    background:
+        linear-gradient(
+            145deg,
+            #111638,
+            #090d25
+        );
+
+    border:1px solid rgba(255,255,255,.09);
+
+    border-radius:30px;
+
+    padding:30px;
+
+    text-align:center;
+
+    position:relative;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.25);
+
+    transition:.4s;
+}
+
+.alarm-card:hover{
+    transform:translateY(-7px);
+
+    border-color:
+        rgba(145,132,255,.5);
+}
+
+.alarm-card::before{
+    content:"";
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    background:#8174ed;
+
+    filter:blur(90px);
+
+    opacity:.12;
+
+    top:-80px;
+    left:50%;
+
+    transform:translateX(-50%);
+}
+
+.alarm-title{
+    position:relative;
+
+    font-size:17px;
+
+    color:#c2baff;
+
+    margin-bottom:5px;
+
+    font-weight:bold;
+}
+
+.alarm-subtitle{
+    position:relative;
+
+    color:#8589a8;
+
+    font-size:13px;
+
+    margin-bottom:25px;
+}
+
+.alarm-screen{
+    position:relative;
+
+    background:#050817;
+
+    border-radius:25px;
+
+    padding:25px 15px;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    box-shadow:
+        inset 0 0 25px rgba(116,102,230,.08),
+        0 0 20px rgba(0,0,0,.3);
+}
+
+.alarm-time{
+    width:100%;
+
+    background:transparent;
+
+    border:none;
+
+    color:#f8f5ff;
+
+    font-size:58px;
+
+    font-weight:700;
+
+    text-align:center;
+
+    letter-spacing:3px;
+
+    outline:none;
+
+    font-family:Arial, Helvetica, sans-serif;
+
+    color-scheme:dark;
+}
+
+.alarm-time::-webkit-calendar-picker-indicator{
+    filter:invert(1);
+
+    opacity:.6;
+
+    cursor:pointer;
+}
+
+.alarm-icon{
+    font-size:27px;
+
+    margin-bottom:10px;
+}
+
+.alarm-status{
+    margin-top:12px;
+
+    color:#8589a8;
+
+    font-size:12px;
+}
+
+.alarm-button{
+    margin-top:20px;
+
+    border:none;
+
+    background:#7568dd;
+
+    color:white;
+
+    padding:11px 22px;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+    transition:.3s;
+}
+
+.alarm-button:hover{
+    background:#8d80ef;
+
+    transform:scale(1.05);
+}
+
+/* =========================================================
+   RESULTADO DO SONO
+========================================================= */
+
+.sleep-analysis{
+    display:none;
+
+    margin-top:28px;
+
+    padding:28px;
+
+    border-radius:25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(117,104,221,.2),
+            rgba(16,19,46,.8)
+        );
+
+    border:1px solid rgba(151,140,255,.3);
+
+    animation:entrada .5s ease;
+}
+
+.sleep-analysis.show{
+    display:block;
+}
+
+.sleep-big-number{
+    font-size:42px;
+
+    font-weight:bold;
+
+    color:#c4bcff;
+
+    margin:8px 0;
+}
+
+.sleep-warning{
+    color:#ffd98c;
+}
+
+.sleep-good{
+    color:#a8e5c5;
+}
+
+.sleep-suggestion{
+    margin-top:15px;
+
+    padding:18px;
+
+    background:rgba(0,0,0,.18);
+
+    border-radius:17px;
+
+    color:#b9bbcf;
+
+    line-height:1.7;
+}
+
+/* =========================================================
+   ALIMENTAÇÃO
+========================================================= */
+
+.food-options{
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:15px;
+}
+
+.food-option{
+    padding:22px 15px;
+
+    border-radius:20px;
+
+    background:#0d112b;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:white;
+
+    cursor:pointer;
+
+    text-align:center;
+
+    transition:.3s;
+
+    font-weight:bold;
+}
+
+.food-option:hover{
+    transform:translateY(-5px);
+
+    border-color:#8d80ed;
+
+    background:#15183b;
+}
+
+.food-option.selected{
+    background:#7568dd;
+
+    border-color:#a59aff;
+
+    box-shadow:
+        0 10px 30px
+        rgba(117,104,221,.2);
+}
+
+.food-info{
+    display:none;
+
+    margin-top:22px;
+
+    padding:22px;
+
+    border-radius:18px;
+
+    background:#0b0f28;
+
+    border-left:4px solid #8e81ed;
+
+    color:#b5b7ca;
+
+    line-height:1.7;
+
+    animation:entrada .4s ease;
+}
+
+.food-info.show{
+    display:block;
+}
+
+.other-food{
+    display:none;
+
+    margin-top:20px;
+
+    animation:entrada .4s ease;
+}
+
+.other-food.show{
+    display:block;
+}
+
+.other-food textarea{
+    width:100%;
+
+    min-height:130px;
+
+    resize:vertical;
+
+    background:#090d25;
+
+    color:white;
+
+    border:1px solid #4e4a85;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    font-family:Arial, Helvetica, sans-serif;
+
+    font-size:15px;
+
+    outline:none;
+}
+
+.other-food textarea:focus{
+    border-color:#9a8eff;
+}
+
+.success{
+    display:none;
+
+    margin-top:25px;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    background:rgba(82,160,125,.12);
+
+    border:1px solid rgba(116,207,164,.25);
+
+    color:#c1dfd1;
+}
+
+.success.show{
+    display:block;
+}
+
+/* =========================================================
+   FINAL
+========================================================= */
+
+.final{
+    text-align:center;
+
+    min-height:75vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+}
+
+.final-moon{
+    font-size:100px;
+
+    animation:flutuar 4s infinite ease-in-out;
+}
+
+.final h2{
+    margin-top:20px;
+}
+
+/* =========================================================
+   RODAPÉ
+========================================================= */
+
+footer{
+    text-align:center;
+
+    padding:35px;
+
+    color:#777b96;
+
+    border-top:
+        1px solid rgba(255,255,255,.07);
+}
+
+footer strong{
+    color:#9c90ff;
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media(max-width:900px){
+
+    nav{
+        padding:15px 0;
+
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+    .menu{
+        width:100%;
+    }
+
+    .home,
+    .importance-grid{
+        grid-template-columns:1fr;
+    }
+
+    .sleep-scene{
+        height:350px;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .tip-grid{
+        grid-template-columns:1fr;
+    }
+
+    .alarm-area{
+        grid-template-columns:1fr;
+    }
+
+    .food-options{
+        grid-template-columns:1fr 1fr;
+    }
+
+    h2{
+        font-size:38px;
+    }
+
+}
+
+@media(max-width:500px){
+
+    .food-options{
+        grid-template-columns:1fr;
+    }
+
+    .question-box{
+        padding:23px;
+    }
+
+    .alarm-time{
+        font-size:45px;
+    }
+
+    .page-navigation{
+        flex-wrap:wrap;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     ESTRELAS E LUA
+========================================================= -->
+
+<div class="stars" id="stars"></div>
+
+<div class="moon-bg"></div>
+
+
+<!-- =========================================================
+     MENU
+========================================================= -->
+
+<header>
+
+<nav>
+
+<div class="logo">
+🌙 CICLO <span>DO SONO</span>
+</div>
+
+<div class="menu">
+
+<button class="active"
+onclick="abrirPagina('inicio',0)">
+Início
+</button>
+
+<button onclick="abrirPagina('sono',1)">
+Entendendo o sono
+</button>
+
+<button onclick="abrirPagina('importancia',2)">
+Importância
+</button>
+
+<button onclick="abrirPagina('dicas',3)">
+Dicas
+</button>
+
+<button onclick="abrirPagina('rotina',4)">
+Rotina noturna
+</button>
+
+<button onclick="abrirPagina('curiosidades',5)">
+Curiosidades
+</button>
+
+<button onclick="abrirPagina('importante',6)">
+Importante
+</button>
+
+<button onclick="abrirPagina('minhaRotina',7)">
+Minha rotina
+</button>
+
+</div>
+
+</nav>
+
+</header>
+
+
+<!-- =========================================================
+     1 — INÍCIO
+========================================================= -->
+
+<main id="inicio" class="page active">
+
+<div class="container home">
+
+
+<div class="home-text">
+
+<div class="label">
+BEM-VINDO AO CICLO DO SONO
+</div>
+
+<h1>
+
+Ciclo do
+
+<span>
+Sono.
+</span>
+
+</h1>
+
+<p class="text">
+
+Entenda como o sono funciona, por que ele é
+importante e descubra maneiras de construir
+uma rotina noturna mais tranquila.
+
+</p>
+
+<br>
+
+
+
+
+</div>
+
+
+<div class="sleep-scene">
+
+<div class="cloud cloud1"></div>
+
+<div class="cloud cloud2"></div>
+
+<div class="big-moon">
+
+<div class="crater c1"></div>
+
+<div class="crater c2"></div>
+
+<div class="crater c3"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="final">
+
+<div class="label">
+SONO • SAÚDE • BEM-ESTAR
+</div>
+
+<h2>
+Conheça o ciclo do sono.
+</h2>
+
+<p class="text">
+
+Passe pelas páginas em ordem e descubra
+o que acontece durante o sono, seus benefícios,
+dicas para uma boa noite e muito mais.
+
+</p>
+
+</div>
+
+</main>
+
+
+<!-- =========================================================
+     2 — ENTENDENDO O SONO
+========================================================= -->
+
+<section id="sono" class="page">
+
+<div class="container">
+
+<div class="label">
+01 — ENTENDENDO O SONO
+</div>
+
+<h2>
+O que é o sono?
+</h2>
+
+<p class="text">
+
+O sono é um estado natural de descanso.
+Mesmo quando estamos dormindo, o organismo
+continua realizando diversas atividades importantes.
+
+</p>
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<div class="icon">🧠</div>
+
+<h3>
+O cérebro continua trabalhando
+</h3>
+
+<p>
+
+Durante o sono, o cérebro participa de processos
+ligados à memória, aprendizagem e organização
+das informações.
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">💤</div>
+
+<h3>
+O corpo desacelera
+</h3>
+
+<p>
+
+Durante o descanso, várias funções do organismo
+mudam de ritmo, permitindo que o corpo tenha
+um período de recuperação.
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">🌙</div>
+
+<h3>
+O sono faz parte da rotina
+</h3>
+
+<p>
+
+Dormir não é tempo perdido.
+É uma necessidade básica e uma parte importante
+de uma rotina saudável.
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">⏰</div>
+
+<h3>
+Existe um relógio biológico
+</h3>
+
+<p>
+
+Nosso organismo possui mecanismos que ajudam
+a regular períodos de sono e vigília ao longo do dia.
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">📚</div>
+
+<h3>
+Sono e aprendizagem
+</h3>
+
+<p>
+
+O descanso adequado está relacionado a processos
+que ajudam na memória e na aprendizagem.
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">❤️</div>
+
+<h3>
+Sono e bem-estar
+</h3>
+
+<p>
+
+Uma rotina de sono adequada contribui para
+o funcionamento geral do organismo e para
+o bem-estar.
+
+</p>
+
+</div>
+
+
+</div>
+
+
+<div class="page-navigation">
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     3 — IMPORTÂNCIA
+========================================================= -->
+
+<section id="importancia" class="page">
+
+<div class="container">
+
+<div class="importance-grid">
+
+
+<div class="brain">
+🧠
+</div>
+
+
+<div>
+
+<div class="label">
+02 — IMPORTÂNCIA
+</div>
+
+<h2>
+Por que dormir bem é tão importante?
+</h2>
+
+<p class="text">
+
+Uma boa noite de sono ajuda o corpo e o cérebro
+a realizarem processos essenciais.
+
+</p>
+
+
+<div class="benefits">
+
+
+<div class="benefit">
+
+<strong>
+🧠 Memória e aprendizagem
+</strong>
+
+<span>
+O sono participa de processos relacionados
+à organização e consolidação das informações.
+</span>
+
+</div>
+
+
+<div class="benefit">
+
+<strong>
+⚡ Atenção e disposição
+</strong>
+
+<span>
+Dormir adequadamente pode ajudar a manter
+atenção e disposição durante o dia.
+</span>
+
+</div>
+
+
+<div class="benefit">
+
+<strong>
+💪 Recuperação
+</strong>
+
+<span>
+O descanso faz parte dos processos de recuperação
+e manutenção do organismo.
+</span>
+
+</div>
+
+
+<div class="benefit">
+
+<strong>
+😊 Humor e bem-estar
+</strong>
+
+<span>
+Uma rotina de sono adequada está relacionada
+ao bem-estar emocional e físico.
+</span>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="page-navigation">
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     4 — DICAS
+========================================================= -->
+
+<section id="dicas" class="page">
+
+<div class="container">
+
+<div class="label">
+03 — DICAS PARA DORMIR MELHOR
+</div>
+
+<h2>
+Prepare o corpo para descansar.
+</h2>
+
+<p class="text">
+
+Não existe uma fórmula mágica para dormir bem,
+mas alguns hábitos podem deixar a rotina muito
+mais favorável ao descanso.
+
+</p>
+
+
+<div class="tip-grid">
+
+
+<div class="tip">
+
+<div class="tip-number">01</div>
+
+<h3>
+Tenha horários regulares
+</h3>
+
+<p>
+Tente manter horários semelhantes
+para dormir e acordar todos os dias.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">02</div>
+
+<h3>
+Crie um ambiente confortável
+</h3>
+
+<p>
+Deixe o quarto silencioso, confortável
+e, quando possível, escuro.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">03</div>
+
+<h3>
+Diminua os estímulos à noite
+</h3>
+
+<p>
+Reserve um momento tranquilo antes
+de dormir para desacelerar.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">04</div>
+
+<h3>
+Cuidado com a cafeína
+</h3>
+
+<p>
+Café, energéticos e outras fontes de cafeína
+podem atrapalhar o sono quando consumidos
+perto do horário de dormir.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">05</div>
+
+<h3>
+Tenha luz durante o dia
+</h3>
+
+<p>
+A luz natural durante o dia ajuda o organismo
+a regular seu relógio biológico.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">06</div>
+
+<h3>
+Tenha uma rotina relaxante
+</h3>
+
+<p>
+Ler, tomar banho ou ouvir música tranquila
+podem fazer parte de um ritual noturno.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">07</div>
+
+<h3>
+Não ignore o cansaço
+</h3>
+
+<p>
+Preste atenção aos sinais do seu corpo
+e evite deixar o sono sempre para depois.
+</p>
+
+</div>
+
+
+<div class="tip">
+
+<div class="tip-number">08</div>
+
+<h3>
+Use a cama principalmente para descansar
+</h3>
+
+<p>
+Sempre que possível, mantenha a cama
+associada ao sono e ao descanso.
+</p>
+
+</div>
+
+
+</div>
+
+
+<div class="page-navigation">
+
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     5 — ROTINA NOTURNA
+========================================================= -->
+
+<section id="rotina" class="page">
+
+<div class="container">
+
+<div class="label">
+04 — ROTINA NOTURNA
+</div>
+
+<h2>
+Uma noite tranquila começa antes de dormir.
+</h2>
+
+<p class="text">
+
+A rotina abaixo é apenas um exemplo.
+Os horários podem ser adaptados à sua realidade.
+
+</p>
+
+
+<div class="timeline">
+
+
+<div class="timeline-item">
+
+<div class="timeline-dot">
+📚
+</div>
+
+<div class="timeline-content">
+
+<div class="time">
+20:30
+</div>
+
+<h3>
+Finalize as tarefas
+</h3>
+
+<p>
+Organize o que precisa ser feito
+e comece a diminuir o ritmo da noite.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="timeline-item">
+
+<div class="timeline-dot">
+🚿
+</div>
+
+<div class="timeline-content">
+
+<div class="time">
+21:00
+</div>
+
+<h3>
+Comece a desacelerar
+</h3>
+
+<p>
+Um banho e atividades tranquilas podem
+ajudar a criar uma transição para
+o período de descanso.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="timeline-item">
+
+<div class="timeline-dot">
+📵
+</div>
+
+<div class="timeline-content">
+
+<div class="time">
+21:30
+</div>
+
+<h3>
+Diminua os estímulos
+</h3>
+
+<p>
+Evite atividades muito agitadas
+e deixe o ambiente mais tranquilo.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="timeline-item">
+
+<div class="timeline-dot">
+📖
+</div>
+
+<div class="timeline-content">
+
+<div class="time">
+21:45
+</div>
+
+<h3>
+Faça algo relaxante
+</h3>
+
+<p>
+Ler, escrever ou simplesmente ficar
+em silêncio podem ser opções
+para desacelerar.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="timeline-item">
+
+<div class="timeline-dot">
+🌙
+</div>
+
+<div class="timeline-content">
+
+<div class="time">
+22:00
+</div>
+
+<h3>
+Hora de descansar
+</h3>
+
+<p>
+Deixe o quarto confortável e permita
+que o corpo entre no período de descanso.
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="page-navigation">
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     6 — CURIOSIDADES
+========================================================= -->
+
+<section id="curiosidades" class="page">
+
+<div class="container">
+
+<div class="label">
+05 — CURIOSIDADES
+</div>
+
+<h2>
+Você sabia?
+</h2>
+
+<p class="text">
+
+Clique nas perguntas para descobrir algumas
+curiosidades sobre o sono.
+
+</p>
+
+
+<div class="questions">
+
+
+<div class="question">
+
+<div class="question-top">
+
+<span>
+🧠 O sono ajuda na memória?
+</span>
+
+<span>＋</span>
+
+</div>
+
+<div class="answer">
+
+Sim. O sono participa de processos relacionados
+à consolidação e organização das memórias
+e aprendizagens.
+
+</div>
+
+</div>
+
+
+<div class="question">
+
+<div class="question-top">
+
+<span>
+🌞 A luz do dia influencia o sono?
+</span>
+
+<span>＋</span>
+
+</div>
+
+<div class="answer">
+
+Sim. A exposição à luz durante o dia participa
+da regulação do relógio biológico, que ajuda
+a organizar períodos de sono e vigília.
+
+</div>
+
+</div>
+
+
+<div class="question">
+
+<div class="question-top">
+
+<span>
+📱 O celular pode atrapalhar a hora de dormir?
+</span>
+
+<span>＋</span>
+
+</div>
+
+<div class="answer">
+
+O celular pode manter a pessoa estimulada
+e dificultar o momento de desacelerar.
+Por isso, ter um período mais tranquilo
+antes de dormir pode ser útil.
+
+</div>
+
+</div>
+
+
+<div class="question">
+
+<div class="question-top">
+
+<span>
+🛌 Todo mundo precisa da mesma quantidade de sono?
+</span>
+
+<span>＋</span>
+
+</div>
+
+<div class="answer">
+
+Não. A necessidade de sono varia de acordo
+com a idade e as características individuais.
+Adolescentes geralmente precisam de cerca
+de 8 a 10 horas por noite.
+
+</div>
+
+</div>
+
+
+<div class="question">
+
+<div class="question-top">
+
+<span>
+☕ A cafeína pode influenciar o sono?
+</span>
+
+<span>＋</span>
+
+</div>
+
+<div class="answer">
+
+Sim. A cafeína é estimulante e pode dificultar
+o sono quando consumida perto do horário
+de dormir.
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="page-navigation">
+
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     7 — IMPORTANTE
+========================================================= -->
+
+<section id="importante" class="page">
+
+<div class="container">
+
+<div class="warning">
+
+<div class="warning-icon">
+⚠️
+</div>
+
+<div class="label">
+06 — INFORMAÇÃO IMPORTANTE
+</div>
+
+<h2>
+Quando devemos prestar atenção ao sono?
+</h2>
+
+<p>
+
+Uma noite ruim de vez em quando pode acontecer.
+O problema é quando dificuldades relacionadas
+ao sono se tornam frequentes ou começam
+a atrapalhar a rotina.
+
+</p>
+
+<p>
+
+Sonolência excessiva durante o dia, dificuldades
+persistentes para dormir ou alterações importantes
+na rotina de descanso são motivos para conversar
+com um responsável e buscar orientação de um
+profissional de saúde.
+
+</p>
+
+<p>
+
+<strong>
+Cuidar do sono também é cuidar da saúde.
+</strong>
+
+</p>
+
+</div>
+
+
+<div class="page-navigation">
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     8 — MINHA ROTINA
+========================================================= -->
+
+<section id="minhaRotina" class="page">
+
+<div class="container">
+
+
+<div class="label">
+07 — AGORA É SUA VEZ
+</div>
+
+<h2>
+Conte como é a sua rotina de sono.
+</h2>
+
+<p class="text">
+
+Responda às perguntas abaixo.
+O site vai analisar seus horários e mostrar
+uma sugestão personalizada.
+
+</p>
+
+
+<div class="sleep-routine">
+
+
+<!-- HORÁRIOS -->
+
+<div class="question-box">
+
+<h3>
+🌙 A que horas você costuma dormir?
+</h3>
+
+<p>
+Escolha o horário em que você normalmente
+vai dormir e acorda.
+</p>
+
+
+<div class="alarm-area">
+
+
+<!-- DORMIR -->
+
+<div class="alarm-card">
+
+<div class="alarm-icon">
+🌙
+</div>
+
+<div class="alarm-title">
+HORÁRIO DE DORMIR
+</div>
+
+<div class="alarm-subtitle">
+Seu horário habitual
+</div>
+
+
+<div class="alarm-screen">
+
+<input
+type="time"
+id="horaDormir"
+class="alarm-time"
+value="22:00">
+
+<div class="alarm-status">
+💤 Hora de descansar
+</div>
+
+</div>
+
+
+<button
+class="alarm-button"
+onclick="confirmarDormir(this)">
+
+✓ Confirmar horário
+
+</button>
+
+</div>
+
+
+<!-- ACORDAR -->
+
+<div class="alarm-card">
+
+<div class="alarm-icon">
+☀️
+</div>
+
+<div class="alarm-title">
+HORÁRIO DE ACORDAR
+</div>
+
+<div class="alarm-subtitle">
+Seu horário habitual
+</div>
+
+
+<div class="alarm-screen">
+
+<input
+type="time"
+id="horaAcordar"
+class="alarm-time"
+value="06:30">
+
+<div class="alarm-status">
+⏰ Hora de levantar
+</div>
+
+</div>
+
+
+<button
+class="alarm-button"
+onclick="confirmarAcordar(this)">
+
+✓ Confirmar horário
+
+</button>
+
+</div>
+
+
+</div>
+
+
+<div
+id="resultadoSono"
+class="sleep-analysis">
+</div>
+
+</div>
+
+
+<!-- ALIMENTAÇÃO -->
+
+<div class="question-box">
+
+<h3>
+🍎 O que você costuma comer antes de dormir?
+</h3>
+
+<p>
+
+Escolha a opção que mais parece com o que
+você costuma comer antes de dormir.
+
+</p>
+
+
+<div class="food-options">
+
+
+<button
+class="food-option"
+onclick="selecionarComida(this,'pao')">
+
+🍞
+<br>
+Pão
+
+</button>
+
+
+<button
+class="food-option"
+onclick="selecionarComida(this,'janta')">
+
+🍽️
+<br>
+Janta
+
+</button>
+
+
+<button
+class="food-option"
+onclick="selecionarComida(this,'frutas')">
+
+🍎
+<br>
+Frutas
+
+</button>
+
+
+<button
+class="food-option"
+onclick="selecionarComida(this,'outros')">
+
+✏️
+<br>
+Outros
+
+</button>
+
+
+</div>
+
+
+<div id="infoPao" class="food-info">
+
+<strong>🍞 Pão</strong>
+
+<br><br>
+
+O pão pode fazer parte de uma alimentação
+variada. O desconforto pode depender da
+quantidade e dos acompanhamentos.
+
+</div>
+
+
+<div id="infoJanta" class="food-info">
+
+<strong>🍽️ Janta</strong>
+
+<br><br>
+
+Uma refeição muito grande ou pesada
+perto da hora de dormir pode causar
+desconforto em algumas pessoas.
+
+</div>
+
+
+<div id="infoFrutas" class="food-info">
+
+<strong>🍎 Frutas</strong>
+
+<br><br>
+
+Frutas fornecem vitaminas, minerais,
+fibras e água e podem fazer parte
+de uma alimentação equilibrada.
+
+</div>
+
+
+<div id="infoOutros" class="food-info">
+
+<strong>✏️ Outros</strong>
+
+<br><br>
+
+Conte o que você costuma comer ou se
+normalmente não come nada antes de dormir.
+
+</div>
+
+
+<div id="campoOutros" class="other-food">
+
+<textarea
+id="textoComida"
+placeholder="Escreva aqui o que você costuma comer antes de dormir...">
+</textarea>
+
+</div>
+
+
+<div
+id="alimentacaoSalva"
+class="success">
+
+✨ Resposta registrada!
+
+Agora você já sabe um pouco mais
+sobre sua rotina antes de dormir.
+
+</div>
+
+<br>
+
+
+<button
+class="btn"
+onclick="salvarAlimentacao()">
+
+Salvar minha resposta 💜
+
+</button>
+
+
+</div>
+
+
+<!-- LISTA FINAL -->
+
+<div class="question-box">
+
+<h3>
+🌙 Ideias tranquilas para antes de dormir
+</h3>
+
+<p>
+Se você sentir fome antes de dormir,
+algumas opções simples podem fazer parte
+de uma alimentação equilibrada.
+</p>
+
+<div class="cards">
+
+<div class="card">
+
+<div class="icon">
+🍌
+</div>
+
+<h3>
+Banana
+</h3>
+
+<p>
+Uma fruta prática para um pequeno lanche.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">
+🍎
+</div>
+
+<h3>
+Maçã
+</h3>
+
+<p>
+Uma opção simples e fácil de preparar.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">
+🥛
+</div>
+
+<h3>
+Leite ou bebida semelhante
+</h3>
+
+<p>
+Pode fazer parte de um lanche, conforme
+a alimentação e preferência da pessoa.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="icon">
+🍓
+</div>
+
+<h3>
+Frutas
+</h3>
+
+<p>
+Uma opção leve que pode variar conforme
+a preferência.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="page-navigation">
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     RODAPÉ
+========================================================= -->
+
+<footer>
+
+<p>
+🌙 <strong>CICLO DO SONO</strong>
+</p>
+
+<p>
+Um projeto educativo sobre sono,
+descanso e bem-estar.
+</p>
+
+<br>
+
+<small>
+Informações educativas — não substituem orientação profissional.
+</small>
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   ESTRELAS
+========================================================= */
+
+const estrelas =
+document.getElementById("stars");
+
+for(let i = 0; i < 130; i++){
+
+    const estrela =
+    document.createElement("div");
+
+    estrela.className = "star";
+
+    estrela.style.left =
+    Math.random() * 100 + "%";
+
+    estrela.style.top =
+    Math.random() * 100 + "%";
+
+    estrela.style.animationDelay =
+    Math.random() * 4 + "s";
+
+    estrela.style.animationDuration =
+    (2 + Math.random() * 4) + "s";
+
+    estrelas.appendChild(estrela);
+}
+
+
+/* =========================================================
+   LISTA DAS PÁGINAS
+========================================================= */
+
+const paginas = [
+    "inicio",
+    "sono",
+    "importancia",
+    "dicas",
+    "rotina",
+    "curiosidades",
+    "importante",
+    "minhaRotina"
+];
+
+let paginaAtual = 0;
+
+
+/* =========================================================
+   ABRIR PÁGINA
+========================================================= */
+
+function abrirPagina(id,numero){
+
+    document.querySelectorAll(".page")
+    .forEach(page=>{
+        page.classList.remove("active");
+    });
+
+
+    const pagina =
+    document.getElementById(id);
+
+
+    if(pagina){
+
+        pagina.classList.add("active");
+
+    }
+
+
+    document.querySelectorAll(".menu button")
+    .forEach(btn=>{
+        btn.classList.remove("active");
+    });
+
+
+    const botoes =
+    document.querySelectorAll(".menu button");
+
+
+    if(botoes[numero]){
+
+        botoes[numero].classList.add("active");
+
+    }
+
+
+    paginaAtual = numero;
+
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =========================================================
+   IR PARA UMA PÁGINA PELO NÚMERO
+========================================================= */
+
+function irParaPagina(numero){
+
+    if(numero < 0 || numero >= paginas.length){
+        return;
+    }
+
+
+    abrirPagina(
+        paginas[numero],
+        numero
+    );
+
+}
+
+
+/* =========================================================
+   PRÓXIMA PÁGINA
+========================================================= */
+
+function irParaProxima(){
+
+    if(paginaAtual < paginas.length - 1){
+
+        irParaPagina(
+            paginaAtual + 1
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CURIOSIDADES
+========================================================= */
+
+document.querySelectorAll(".question")
+.forEach(question=>{
+
+    question.addEventListener("click",()=>{
+
+        question.classList.toggle("open");
+
+    });
+
+});
+
+
+/* =========================================================
+   CONVERTER HORÁRIO PARA MINUTOS
+========================================================= */
+
+function minutosDoHorario(horario){
+
+    const partes =
+    horario.split(":");
+
+    return (
+        Number(partes[0]) * 60
+    )
+    +
+    Number(partes[1]);
+
+}
+
+
+/* =========================================================
+   FORMATAR HORÁRIO
+========================================================= */
+
+function horarioFormatado(minutos){
+
+    minutos =
+    (minutos + 1440) % 1440;
+
+    const horas =
+    Math.floor(minutos / 60);
+
+    const mins =
+    minutos % 60;
+
+    return (
+        String(horas).padStart(2,"0")
+        +
+        ":"
+        +
+        String(mins).padStart(2,"0")
+    );
+
+}
+
+
+/* =========================================================
+   CONFIRMAR DORMIR
+========================================================= */
+
+function confirmarDormir(botao){
+
+    const horario =
+    document.getElementById(
+        "horaDormir"
+    ).value;
+
+
+    if(!horario){
+
+        alert(
+            "Escolha seu horário de dormir 🌙"
+        );
+
+        return;
+
+    }
+
+
+    botao.innerHTML =
+    "✓ Horário definido";
+
+    botao.style.background =
+    "#4d9978";
+
+    atualizarSono();
+
+}
+
+
+/* =========================================================
+   CONFIRMAR ACORDAR
+========================================================= */
+
+function confirmarAcordar(botao){
+
+    const horario =
+    document.getElementById(
+        "horaAcordar"
+    ).value;
+
+
+    if(!horario){
+
+        alert(
+            "Escolha seu horário de acordar ☀️"
+        );
+
+        return;
+
+    }
+
+
+    botao.innerHTML =
+    "✓ Alarme definido";
+
+    botao.style.background =
+    "#4d9978";
+
+    atualizarSono();
+
+}
+
+
+/* =========================================================
+   CALCULAR TEMPO DE SONO
+========================================================= */
+
+function atualizarSono(){
+
+    const dormir =
+    document.getElementById(
+        "horaDormir"
+    ).value;
+
+
+    const acordar =
+    document.getElementById(
+        "horaAcordar"
+    ).value;
+
+
+    const resultado =
+    document.getElementById(
+        "resultadoSono"
+    );
+
+
+    if(!dormir || !acordar){
+
+        return;
+
+    }
+
+
+    let inicio =
+    minutosDoHorario(dormir);
+
+
+    let fim =
+    minutosDoHorario(acordar);
+
+
+    if(fim <= inicio){
+
+        fim += 1440;
+
+    }
+
+
+    const duracao =
+    fim - inicio;
+
+
+    const horas =
+    Math.floor(
+        duracao / 60
+    );
+
+
+    const minutos =
+    duracao % 60;
+
+
+    /*
+       Para adolescentes, a recomendação
+       geralmente utilizada é de aproximadamente
+       8 a 10 horas por noite.
+    */
+
+    if(duracao < 480){
+
+        const horarioIdeal =
+        fim - 480;
+
+
+        resultado.innerHTML = `
+
+            <div class="sleep-big-number">
+                ${horas}h ${minutos}min
+            </div>
+
+            <div class="sleep-warning">
+
+                ⚠️ Seu período informado está
+                abaixo de 8 horas.
+
+            </div>
+
+            <div class="sleep-suggestion">
+
+                🌙 Para acordar às
+
+                <strong>
+                    ${acordar}
+                </strong>
+
+                e ter aproximadamente 8 horas
+                de sono, uma sugestão seria
+                dormir por volta de
+
+                <strong>
+                    ${horarioFormatado(horarioIdeal)}
+                </strong>.
+
+                <br><br>
+
+                💜 Essa sugestão é apenas educativa.
+                A necessidade de sono pode variar
+                de pessoa para pessoa.
+
+            </div>
+
+        `;
+
+    }
+
+    else if(duracao <= 600){
+
+        resultado.innerHTML = `
+
+            <div class="sleep-big-number">
+
+                ${horas}h ${minutos}min
+
+            </div>
+
+            <div class="sleep-good">
+
+                ✨ Seu período informado está
+                dentro de uma faixa geralmente
+                recomendada para adolescentes.
+
+            </div>
+
+            <div class="sleep-suggestion">
+
+                🌙 Continue tentando manter
+                horários regulares para dormir
+                e acordar.
+
+            </div>
+
+        `;
+
+    }
+
+    else{
+
+        resultado.innerHTML = `
+
+            <div class="sleep-big-number">
+
+                ${horas}h ${minutos}min
+
+            </div>
+
+            <div class="sleep-good">
+
+                ✨ Você informou um período
+                de sono bastante longo.
+
+            </div>
+
+            <div class="sleep-suggestion">
+
+                🌙 A necessidade de sono varia
+                entre as pessoas. Observe também
+                como você se sente durante o dia.
+
+            </div>
+
+        `;
+
+    }
+
+
+    resultado.classList.add("show");
+
+}
+
+
+/* =========================================================
+   ALIMENTAÇÃO
+========================================================= */
+
+function selecionarComida(
+    botao,
+    tipo
+){
+
+    document
+    .querySelectorAll(".food-option")
+    .forEach(opcao=>{
+
+        opcao.classList.remove(
+            "selected"
+        );
+
+    });
+
+
+    botao.classList.add(
+        "selected"
+    );
+
+
+    document
+    .querySelectorAll(".food-info")
+    .forEach(info=>{
+
+        info.classList.remove(
+            "show"
+        );
+
+    });
+
+
+    const idInfo =
+        "info"
+        +
+        tipo.charAt(0).toUpperCase()
+        +
+        tipo.slice(1);
+
+
+    document
+    .getElementById(idInfo)
+    .classList.add("show");
+
+
+    const campo =
+    document.getElementById(
+        "campoOutros"
+    );
+
+
+    if(tipo === "outros"){
+
+        campo.classList.add(
+            "show"
+        );
+
+    }
+
+    else{
+
+        campo.classList.remove(
+            "show"
+        );
+
+    }
+
+
+    document
+    .getElementById(
+        "alimentacaoSalva"
+    )
+    .classList.remove(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   SALVAR ALIMENTAÇÃO
+========================================================= */
+
+function salvarAlimentacao(){
+
+    const selecionada =
+    document.querySelector(
+        ".food-option.selected"
+    );
+
+
+    const mensagem =
+    document.getElementById(
+        "alimentacaoSalva"
+    );
+
+
+    if(!selecionada){
+
+        alert(
+            "Escolha uma opção primeiro 🌙"
+        );
+
+        return;
+
+    }
+
+
+    if(
+
+        selecionada.innerText
+        .includes("Outros")
+
+        &&
+
+        document
+        .getElementById(
+            "textoComida"
+        )
+        .value
+        .trim()
+        === ""
+
+    ){
+
+        alert(
+            "Escreva o que você costuma comer antes de dormir ✏️"
+        );
+
+        return;
+
+    }
+
+
+    mensagem.classList.add(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   TECLADO — SETAS PARA NAVEGAR
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        /*
+           Só muda de página se o usuário
+           não estiver digitando em um campo.
+        */
+
+        const tag =
+        document.activeElement.tagName;
+
+
+        if(
+            tag === "INPUT" ||
+            tag === "TEXTAREA"
+        ){
+
+            return;
+
+        }
+
+
+        if(event.key === "ArrowRight"){
+
+            irParaProxima();
+
+        }
+
+
+        if(event.key === "ArrowLeft"){
+
+            if(paginaAtual > 0){
+
+                irParaPagina(
+                    paginaAtual - 1
+                );
+
+            }
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
